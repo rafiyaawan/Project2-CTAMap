@@ -7,18 +7,31 @@ library(grid)
 library(leaflet)
 library(scales)
 library(dplyr)
+library(plyr)
+library(readr)
 
 #read in the data for stations
+temp = list.files(pattern="*.csv", full.name = T)
+temp = temp[-148] #delete the last file to be read separately
+#read in the files
+ridership_data = ldply(temp, read_csv)
+print(head(ridership_data))
+
+#read in the list of stops and latitudes and longitudes
+stopData <- read.csv(file = 'StopList.csv')
+print(head(stopData))
 
 #fix dates using lubridate
+ridership_data$newDate = as_date(mdy(ridership_data$date))
 
-#add year, month and day columns for datasets
+#add day, month and year data to csv
+ridership_data$year = year(ridership_data$newDate)
+ridership_data$month = month(ridership_data$newDate, abbr = TRUE, label = TRUE)
+ridership_data$wday = weekdays(as.POSIXct(ridership_data$newDate), abbreviate = T)
 
 #changes rides from character to numeric
-# UICHalsted$rides <- as.numeric(gsub(",","",UICHalsted$rides))
-# Ohare$rides <- as.numeric(gsub(",","",Ohare$rides))
-# Washington$rides <- as.numeric(gsub(",","",Washington$rides))
-
+ridership_data$rides <- as.numeric(gsub(",","",ridership_data$rides))
+print(head(ridership_data))
 
 #For year input
 years <- c(2001:2021)
