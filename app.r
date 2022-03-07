@@ -103,6 +103,24 @@ server <- function(input, output) {
       theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
   })
   
+  
+  output$leaflet <- renderPlot({
+    m <- leaflet()
+    m <- addTiles(m)
+    station_ids = strsplit(temp, "./")
+    for (i in station_ids){
+      i = strsplit(i[2], ".csv")
+      a <- subset(stopData, MAP_ID == i)
+      string <- a$Location[1]
+      print(i)
+      mat = matrix(scan(text = gsub("[()]", "", string), sep = ","), 
+                   ncol = 2, byrow = TRUE, dimnames = list(NULL, c("Lat", "Long")))
+      m <- addMarkers(m, lng=mat[1,2], lat=mat[1,1], popup=a$STOP_NAME[1])
+    }
+    m
+    
+  })
+  
 }
 
 shinyApp(ui = ui, server = server)
