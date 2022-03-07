@@ -65,7 +65,16 @@ ui <- dashboardPage(
               h2("Stations Location Data From: Chicago Data Portal at https://data.cityofchicago.org/Transportation/CTA-System-Information-List-of-L-Stops/8pix-ypme"),
               h2("Application Written by Ameesha Saxena and Rafiya Awan for UIC CS 424 Spring 2022")
       ), # tabitem About close
-      tabItem(tabName = "Datavisualizations"
+      tabItem(tabName = "Datavisualizations",
+              fluidRow(
+                column(12,
+                       fluidRow(
+                         box(title = "Entries at L Stations on August 23, 2021", solidHeader = TRUE, status = "primary", width = 12,
+                             plotOutput("initialChart", height = 600)
+                         )
+                       )
+                )
+              )
               
       ) # tabitem Visualizations close
       
@@ -80,6 +89,19 @@ ui <- dashboardPage(
 #server functions
 server <- function(input, output) {
   
+  #Total entries at all L stations for Aug 23, 2021
+  output$initialChart <- renderPlot({
+    
+    
+    # Add up entries for each Station on Aug 23, 2021
+    ridershipAug23 <- subset(ridership_data, ridership_data$newDate == "2021-08-23")
+    byStation <- setNames(aggregate(ridershipAug23$rides, by=list(ridershipAug23$stationname), sum), c("Station", "Entries"))
+
+    ggplot(byStation, aes(x=Station, y=Entries)) +
+      geom_bar(stat="identity", width=0.7, fill="steelblue") +
+      labs(x=paste("Station Name"), y="Total Entries") +
+      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  })
   
 }
 
