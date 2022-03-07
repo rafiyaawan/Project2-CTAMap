@@ -8,6 +8,8 @@ library(leaflet)
 library(scales)
 library(dplyr)
 
+#dimensions of the screen - 5760X1620?
+
 #read in the data for stations
 
 #fix dates using lubridate
@@ -15,9 +17,6 @@ library(dplyr)
 #add year, month and day columns for datasets
 
 #changes rides from character to numeric
-UICHalsted$rides <- as.numeric(gsub(",","",UICHalsted$rides))
-Ohare$rides <- as.numeric(gsub(",","",Ohare$rides))
-Washington$rides <- as.numeric(gsub(",","",Washington$rides))
 
 
 #menu options for selecting years
@@ -25,7 +24,7 @@ years<-c("2001", "2002", "2003", "2004", "2005",
          "2006", "2007", "2008", "2009", "2010",
          "2011", "2012", "2013", "2014", "2015",
          "2016", "2017", "2018", "2019", "2020", "2021")
-dataframe <- c("UICHalsted", "Ohare", "Washington")
+# dataframe <- c("UICHalsted", "Ohare", "Washington")
 
 # Create the shiny dashboard
 ui <- dashboardPage(
@@ -49,7 +48,7 @@ ui <- dashboardPage(
                      menuItem("", tabName = "cheapBlankSpace", icon = NULL),
                      menuItem("", tabName = "cheapBlankSpace", icon = NULL),
                      menuItem("", tabName = "cheapBlankSpace", icon = NULL),
-                     menuItem("", tabName = "cheapBlankSpace", icon = NULL),
+                     menuItem("", tabName = "cheapBlankSpace", icon = NULL)
                      #TODO add about page
                    )
                    
