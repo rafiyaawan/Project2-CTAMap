@@ -51,10 +51,10 @@ ui <- dashboardPage(
               h2("Ridership Data From: Chicago Data Portal at https://data.cityofchicago.org/Transportation/CTA-Ridership-L-Station-Entries-Daily-Totals/5neh-572f"),
               h2("Stations Location Data From: Chicago Data Portal at https://data.cityofchicago.org/Transportation/CTA-System-Information-List-of-L-Stops/8pix-ypme"),
               h2("Application Written by Ameesha Saxena and Rafiya Awan for UIC CS 424 Spring 2022")
-      ),
+      ), # tabitem About close
       tabItem(tabName = "Datavisualizations"
               
-      ) # tabitem visualizations close
+      ) # tabitem Visualizations close
       
     ) #tabItems
     
