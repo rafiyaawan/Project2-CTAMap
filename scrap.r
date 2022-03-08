@@ -43,26 +43,26 @@ ggplot(DateSub, aes(x = stationname, y = rides)) +
   theme(text = element_text(family = "sans", face = "bold")) +
   theme(plot.title = element_text(hjust = 0.5, size=20), axis.title=element_text(size=12), axis.text.x = element_text(angle = 90))
 
-  #geom_bar(stat = "identity", fill = "#91b3bb", width=0.8) +
-  #labs(x = "Weekday", y ="Rides (in thousands)") + 
-  #theme_bw() +
-  #theme(text = element_text(family = "sans", face = "bold")) +
-  #theme(plot.title = element_text(hjust = 0.5, size=20), axis.title=element_text(size=12))  
+#geom_bar(stat = "identity", fill = "#91b3bb", width=0.8) +
+#labs(x = "Weekday", y ="Rides (in thousands)") + 
+#theme_bw() +
+#theme(text = element_text(family = "sans", face = "bold")) +
+#theme(plot.title = element_text(hjust = 0.5, size=20), axis.title=element_text(size=12))  
 
 head(stopData)
 
 station_ids = strsplit(temp, "./")
 for (i in station_ids){
- i = strsplit(i[2], ".csv")
- a <- subset(stopData, MAP_ID == i)
- string <- a$Location[1]
- print(i)
- mat = matrix(scan(text = gsub("[()]", "", string), sep = ","), 
-              ncol = 2, byrow = TRUE, dimnames = list(NULL, c("Lat", "Long")))
- m <- addMarkers(m, lng=mat[1,2], lat=mat[1,1], popup=a$STOP_NAME[1])
+  i = strsplit(i[2], ".csv")
+  a <- subset(stopData, MAP_ID == i)
+  string <- a$Location[1]
+  print(i)
+  mat = matrix(scan(text = gsub("[()]", "", string), sep = ","), 
+               ncol = 2, byrow = TRUE, dimnames = list(NULL, c("Lat", "Long")))
+  m <- addMarkers(m, lng=mat[1,2], lat=mat[1,1], popup=a$STOP_NAME[1])
 }
-  
-  
+
+
 m <- leaflet()
 m <- addTiles(m)
 m <- addMarkers(m, lng=-87.626189, lat=41.88322, popup="The birthplace of R")
@@ -74,5 +74,5 @@ a$Location[1]
 string <- "(41.88322, -87.626189), (41.79542, -87.631157)"
 
 mat = matrix(scan(text = gsub("[()]", "", string), sep = ","), 
-       ncol = 2, byrow = TRUE, dimnames = list(NULL, c("Lat", "Long")))
+             ncol = 2, byrow = TRUE, dimnames = list(NULL, c("Lat", "Long")))
 mat[1,]

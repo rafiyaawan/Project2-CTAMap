@@ -52,6 +52,10 @@ ui <- dashboardPage(
                      menuItem("", tabName = "cheapBlankSpace", icon = NULL),
                      menuItem("", tabName = "cheapBlankSpace", icon = NULL),
                      menuItem("", tabName = "cheapBlankSpace", icon = NULL),
+                     menuItem("", tabName = "cheapBlankSpace", icon = NULL),
+                     menuItem("", tabName = "cheapBlankSpace", icon = NULL),
+                     menuItem("", tabName = "cheapBlankSpace", icon = NULL),
+                     menuItem("", tabName = "cheapBlankSpace", icon = NULL),
                      menuItem("About", tabName = "About", icon = NULL),
                      menuItem("Data Visualizations", tabName = "Datavisualizations", icon = NULL, selected = TRUE))
                    
@@ -70,7 +74,16 @@ ui <- dashboardPage(
                 column(12,
                        fluidRow(
                          box(title = "Entries at L Stations on August 23, 2021", solidHeader = TRUE, status = "primary", width = 12,
-                             plotOutput("initialChart", height = 600)
+                             plotOutput("initialChart", height = 1200)
+                         )
+                       )
+                )
+              ),
+              fluidRow(
+                column(6,
+                       fluidRow(
+                         box(title = "Map of L Stations on August 23, 2021", solidHeader = TRUE, status = "primary", width = 12,
+                             leafletOutput("leaflet", height = 1200)
                          )
                        )
                 )
@@ -104,7 +117,7 @@ server <- function(input, output) {
   })
   
   
-  output$leaflet <- renderPlot({
+  output$leaflet <- renderLeaflet({
     m <- leaflet()
     m <- addTiles(m)
     station_ids = strsplit(temp, "./")
