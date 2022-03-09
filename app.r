@@ -10,6 +10,7 @@ library(dplyr)
 library(plyr)
 library(readr)
 library(leaflet)
+library(leaflet.providers)
 
 #read in the data for stations
 temp = list.files(pattern="*.csv", full.name = T)
@@ -159,19 +160,18 @@ server <- function(input, output) {
       m <- addProviderTiles(m, provider = "OpenTopoMap")
     }
       
-    
+    DateSubSums <- aggregate(DateSub$rides, by=list(station_id=DateSub$station_id), FUN=sum)
     #Pick 3 backgrounds from http://leaflet-extras.github.io/leaflet-providers/preview/
     #m <- addProviderTiles(m, provider = "Esri.WorldImagery") #Thunderforest.Transport
     station_ids = strsplit(temp, "./")
     for (i in station_ids){
       i = strsplit(i[2], ".csv")
-      print(i)
       a <- subset(stopData, MAP_ID == i)
       string <- a$Location[1]
-      print(i)
       mat = matrix(scan(text = gsub("[()]", "", string), sep = ","), 
                    ncol = 2, byrow = TRUE, dimnames = list(NULL, c("Lat", "Long")))
-      m <- addMarkers(m, lng=mat[1,2], lat=mat[1,1], popup=a$STOP_NAME[1])
+      #m <- addMarkers(m, lng=mat[1,2], lat=mat[1,1], popup=a$STOP_NAME[1])
+      m <- addCircleMarkers(m, lng=mat[1,2], lat=mat[1,1], popup=a$STOP_NAME[1], radius = sqrt(dateSubSums$x[dateSubSums$station_id==i]/20))
     }
     m
     
