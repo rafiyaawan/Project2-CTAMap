@@ -9,6 +9,7 @@ library(scales)
 library(dplyr)
 library(plyr)
 library(readr)
+library(leaflet)
 
 #read in the data for stations
 temp = list.files(pattern="*.csv", full.name = T)
