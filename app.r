@@ -42,7 +42,7 @@ ui <- dashboardPage(
   skin = "black",
   
   dashboardHeader(title = "CTA Ridership Map"),
-  dashboardSidebar(disable = FALSE, collapsed = FALSE,
+  dashboardSidebar(disable = FALSE, collapsed = TRUE,
                    
                    sidebarMenu(
                      menuItem("", tabName = "cheapBlankSpace", icon = NULL),
@@ -66,6 +66,23 @@ ui <- dashboardPage(
               h2("Application Written by Ameesha Saxena and Rafiya Awan for UIC CS 424 Spring 2022")
       ), # tabitem About close
       tabItem(tabName = "Datavisualizations",
+              tags$style(HTML("
+              .box.box-solid.box-primary>.box-header {
+              color:#fff;
+              background:#003d59
+              }
+              .box.box-solid.box-primary{
+              border-bottom-color:#666666;
+              border-left-color:#666666;
+              border-right-color:#666666;
+              border-top-color:#666666;
+              }
+              /* body */
+              .content-wrapper, .right-side {
+              background-color: #f5f5f5;
+              }
+                              ")
+                         ),
               fluidRow(
                 column(12,
                        fluidRow(
@@ -74,7 +91,8 @@ ui <- dashboardPage(
                          )
                        )
                 )
-              )
+              ) #fluidrow
+              
               
       ) # tabitem Visualizations close
       
@@ -100,7 +118,10 @@ server <- function(input, output) {
     ggplot(byStation, aes(x=Station, y=Entries)) +
       geom_bar(stat="identity", width=0.7, fill="steelblue") +
       labs(x=paste("Station Name"), y="Total Entries") +
+      theme_bw() +
+      theme(text = element_text(family = "sans", face = "bold")) +
       theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+    
   })
   
   
@@ -110,6 +131,7 @@ server <- function(input, output) {
     station_ids = strsplit(temp, "./")
     for (i in station_ids){
       i = strsplit(i[2], ".csv")
+      print(i)
       a <- subset(stopData, MAP_ID == i)
       string <- a$Location[1]
       print(i)
