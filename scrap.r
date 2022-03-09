@@ -10,6 +10,7 @@ library(dplyr)
 library(plyr)
 library(readr)
 library(leaflet)
+library(leaflet.providers)
 
 #read in the data for stations
 temp = list.files(pattern="*.csv", full.name = T)
@@ -44,7 +45,7 @@ ggplot(DateSub, aes(x = stationname, y = rides)) +
   theme(text = element_text(family = "sans", face = "bold")) +
   theme(plot.title = element_text(hjust = 0.5, size=20), axis.title=element_text(size=12), axis.text.x = element_text(angle = 90))
 
-  w#geom_bar(stat = "identity", fill = "#91b3bb", width=0.8) +
+  #geom_bar(stat = "identity", fill = "#91b3bb", width=0.8) +
   #labs(x = "Weekday", y ="Rides (in thousands)") + 
   #theme_bw() +
   #theme(text = element_text(family = "sans", face = "bold")) +
@@ -52,8 +53,12 @@ ggplot(DateSub, aes(x = stationname, y = rides)) +
 
 head(stopData)
 
+str(providers_loaded()$providers$Esri.WorldStreetMap)
+
+
 m <- leaflet()
 m <- addTiles(m)
+m <- addProviderTiles(m, provider = "Esri.WorldImagery")
 station_ids = strsplit(temp, "./")
 for (i in station_ids){
   i = strsplit(i[2], ".csv")

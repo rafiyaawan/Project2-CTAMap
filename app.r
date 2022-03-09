@@ -98,14 +98,24 @@ ui <- dashboardPage(
                 )
               ),
               fluidRow(
-                column(12,
-                       fluidRow(
-                         box(title = "Map of L Stations on August 23, 2021", solidHeader = TRUE, status = "primary", width = 12,
-                             leafletOutput("leaflet", height = 600)
+                fluidRow(
+                  style = "padding-left:20px",
+                  column(12, 
+                         radioButtons("mapView", h3("Radio buttons"),
+                               choices = list("Street View" = 1, "Terrain View" = 2,
+                                              "Transport" = 3),selected = 1, inline = TRUE)
+                  )
+                ),
+                fluidRow(
+                  column(12,
+                         fluidRow(
+                           box(title = "Map of L Stations on August 23, 2021", solidHeader = TRUE, status = "primary", width = 12,
+                               leafletOutput("leaflet", height = 600)
+                               )
+                           )
                          )
-                       )
-                )
-              ) #fluidrow
+                  ) #fluidrow
+                ) #fluidrow
               
               
       ) # tabitem Visualizations close
@@ -130,7 +140,7 @@ server <- function(input, output) {
     byStation <- setNames(aggregate(ridershipAug23$rides, by=list(ridershipAug23$stationname), sum), c("Station", "Entries"))
 
     ggplot(byStation, aes(x=Station, y=Entries)) +
-      geom_bar(stat="identity", width=0.7, fill="steelblue") +
+      geom_bar(stat="identity", width=0.7, fill="#33647A") +
       labs(x=paste("Station Name"), y="Total Entries") +
       theme_bw() +
       theme(text = element_text(family = "sans", face = "bold")) +
@@ -138,10 +148,20 @@ server <- function(input, output) {
     
   })
   
-  
+  #bad code - can't find how to add a list of markers
   output$leaflet <- renderLeaflet({
     m <- leaflet()
     m <- addTiles(m)
+    if(input$mapView == 2){
+      m <- addProviderTiles(m, provider = "Esri.WorldImagery")
+    }
+    else if(input$mapView == 3){
+      m <- addProviderTiles(m, provider = "OpenTopoMap")
+    }
+      
+    
+    #Pick 3 backgrounds from http://leaflet-extras.github.io/leaflet-providers/preview/
+    #m <- addProviderTiles(m, provider = "Esri.WorldImagery") #Thunderforest.Transport
     station_ids = strsplit(temp, "./")
     for (i in station_ids){
       i = strsplit(i[2], ".csv")
