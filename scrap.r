@@ -56,13 +56,13 @@ m <- leaflet()
 m <- addTiles(m)
 station_ids = strsplit(temp, "./")
 for (i in station_ids){
- i = strsplit(i[2], ".csv")
- a <- subset(stopData, MAP_ID == i)
- string <- a$Location[1]
- print(i)
- mat = matrix(scan(text = gsub("[()]", "", string), sep = ","), 
-              ncol = 2, byrow = TRUE, dimnames = list(NULL, c("Lat", "Long")))
- m <- addMarkers(m, lng=mat[1,2], lat=mat[1,1], popup=a$STOP_NAME[1])
+  i = strsplit(i[2], ".csv")
+  a <- subset(stopData, MAP_ID == i)
+  string <- a$Location[1]
+  print(i)
+  mat = matrix(scan(text = gsub("[()]", "", string), sep = ","), 
+               ncol = 2, byrow = TRUE, dimnames = list(NULL, c("Lat", "Long")))
+  m <- addMarkers(m, lng=mat[1,2], lat=mat[1,1], popup=a$STOP_NAME[1])
 }
 m
 
@@ -72,5 +72,5 @@ a$Location[1]
 string <- "(41.88322, -87.626189), (41.79542, -87.631157)"
 
 mat = matrix(scan(text = gsub("[()]", "", string), sep = ","), 
-       ncol = 2, byrow = TRUE, dimnames = list(NULL, c("Lat", "Long")))
+             ncol = 2, byrow = TRUE, dimnames = list(NULL, c("Lat", "Long")))
 mat[1,]
