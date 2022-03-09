@@ -92,16 +92,16 @@ ui <- dashboardPage(
                 column(12,
                        fluidRow(
                          box(title = "Entries at L Stations on August 23, 2021", solidHeader = TRUE, status = "primary", width = 12,
-                             plotOutput("initialChart", height = 1200)
+                             plotOutput("initialChart", height = 600)
                          )
                        )
                 )
               ),
               fluidRow(
-                column(6,
+                column(12,
                        fluidRow(
                          box(title = "Map of L Stations on August 23, 2021", solidHeader = TRUE, status = "primary", width = 12,
-                             leafletOutput("leaflet", height = 1200)
+                             leafletOutput("leaflet", height = 600)
                          )
                        )
                 )
