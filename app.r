@@ -114,21 +114,24 @@ ui <- dashboardPage(
                 column(1,
                        fluidRow(
                          style = "padding-left:20px",
-                         HTML("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>"),
+                         HTML("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>"),
                          dateInput("dataDate",
-                                   "Enter Date",
+                                   h3("Enter Date"),
                                    value = "2021-08-23",
                                    min = "2001-01-01",
                                    max = "2021-11-30"
                                    ),
                          actionButton("nextButton", "Next"),
-                         actionButton("prevButton", "Previous")
-                         
+                         actionButton("prevButton", "Previous"),
+                         radioButtons("sortData", h3("Sort Bars"),
+                                      choices = list("Alphabetically" = 1, 
+                                                     "Ascending" = 2),selected = 1)
                        ),
                 ),
                 column(11,
                        fluidRow(
-                         box(title = "Entries at L Stations on August 23, 2021", solidHeader = TRUE, status = "primary", width = 12,
+                         #box(title = "Entries at L Stations on August 23, 2021", solidHeader = TRUE, status = "primary", width = 12,
+                         box(title = textOutput("barChart"), solidHeader = TRUE, status = "primary", width = 12,
                              plotOutput("initialChart", height = 600)
                          )
                        )
@@ -146,7 +149,8 @@ ui <- dashboardPage(
                 fluidRow(
                   column(12,
                          fluidRow(
-                           box(title = "Map of L Stations on August 23, 2021", solidHeader = TRUE, status = "primary", width = 12,
+                           #box(title = "Map of L Stations on August 23, 2021", solidHeader = TRUE, status = "primary", width = 12,
+                           box(title = textOutput("map"), solidHeader = TRUE, status = "primary", width = 12,
                                leafletOutput("leaflet", height = 600)
                                )
                            )
@@ -172,10 +176,23 @@ server <- function(input, output) {
     as_date(input$dataDate)
   })
   
+  dataSort <- reactive({
+    input$sortData
+  })
+  
   #dateBarChart <- reactiveValues(as_date(input$dataDate))
   
   observeEvent(input$nextButton, {
     dateBarChart() <- dateBarChart() + 1
+  })
+  
+  #render text
+  output$barChart <- renderText({
+    return(paste("Entries at L Station on ", dateBarChart()))
+  })
+  
+  output$map <- renderText({
+    return(paste("Map of L Stations on ", dateBarChart()))
   })
   
   #Total entries at all L stations for Date
@@ -184,12 +201,19 @@ server <- function(input, output) {
     ridershipAug23 <- subset(ridership_data, ridership_data$newDate == dateBarChart())
     byStation <- setNames(aggregate(ridershipAug23$rides, by=list(ridershipAug23$stationname), sum), c("Station", "Entries"))
 
-    ggplot(byStation, aes(x=Station, y=Entries)) +
-      geom_bar(stat="identity", width=0.7, fill="#33647A") +
+    if(dataSort() == 1){
+      m <- ggplot(byStation, aes(x=Station, y=Entries)) 
+    }
+    else{
+      m <- ggplot(byStation, aes(x=reorder(Station, Entries), y=Entries)) 
+    }
+    
+    m <- m + geom_bar(stat="identity", width=0.7, fill="#33647A") +
       labs(x=paste("Station Name"), y="Total Entries") +
       theme_bw() +
       theme(text = element_text(family = "sans", face = "bold")) +
       theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+    m
     
   })
   
@@ -227,7 +251,6 @@ server <- function(input, output) {
                             radius = marker_radius(DateSubSums[i, "x"]), color = marker_color)
     }
     m
-    
   })
   
 }
