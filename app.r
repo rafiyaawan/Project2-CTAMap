@@ -38,6 +38,27 @@ print(head(ridership_data))
 #For year input
 years <- c(2001:2021)
 
+#radius of markers function
+marker_radius <- function(num_rides) {
+  radius = 0
+  if (num_rides < 1000.0){
+    radius = 4
+  }
+  else if (num_rides < 2000.0){
+    radius = 6
+  }
+  else if (num_rides < 2500.0){
+    radius = 8
+  }
+  else if(num_rides < 4000.0){
+    radius = 10
+  }
+  else{
+    radius = 12
+  }
+  return (radius)
+}
+
 # Create the shiny dashboard
 ui <- dashboardPage(
   #change header color
@@ -160,18 +181,20 @@ server <- function(input, output) {
       m <- addProviderTiles(m, provider = "OpenTopoMap")
     }
       
+    #TODO add the lat and long for the last four stations as (lat, long)
+    #add legend for sizing
+    
     DateSubSums <- aggregate(DateSub$rides, by=list(station_id=DateSub$station_id), FUN=sum)
     #Pick 3 backgrounds from http://leaflet-extras.github.io/leaflet-providers/preview/
     #m <- addProviderTiles(m, provider = "Esri.WorldImagery") #Thunderforest.Transport
     station_ids = strsplit(temp, "./")
-    for (i in station_ids){
-      i = strsplit(i[2], ".csv")
-      a <- subset(stopData, MAP_ID == i)
+    for (i in 1:nrow(dateSubSums)){
+      a <- subset(stopData, MAP_ID == dateSubSums[i, "station_id"])
       string <- a$Location[1]
       mat = matrix(scan(text = gsub("[()]", "", string), sep = ","), 
                    ncol = 2, byrow = TRUE, dimnames = list(NULL, c("Lat", "Long")))
       #m <- addMarkers(m, lng=mat[1,2], lat=mat[1,1], popup=a$STOP_NAME[1])
-      m <- addCircleMarkers(m, lng=mat[1,2], lat=mat[1,1], popup=a$STOP_NAME[1], radius = sqrt(dateSubSums$x[dateSubSums$station_id==i]/20))
+      m <- addCircleMarkers(m, lng=mat[1,2], lat=mat[1,1], popup=a$STOP_NAME[1],radius = marker_radius(dateSubSums[i, "x"]))
     }
     m
     

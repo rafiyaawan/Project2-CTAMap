@@ -12,6 +12,26 @@ library(readr)
 library(leaflet)
 library(leaflet.providers)
 
+marker_radius <- function(num_rides) {
+  radius = 0
+    if (num_rides < 1000.0){
+      radius = 4
+    }
+  else if (num_rides < 2000.0){
+    radius = 6
+  }
+  else if (num_rides < 2500.0){
+    radius = 8
+  }
+  else if(num_rides < 4000.0){
+    radius = 10
+  }
+  else{
+    radius = 12
+  }
+  return (radius)
+}
+
 #read in the data for stations
 temp = list.files(pattern="*.csv", full.name = T)
 print(temp)
@@ -22,7 +42,7 @@ print(head(ridership_data))
 
 #read in the list of stops and latitudes and longitudes
 stopData <- read.csv(file = 'StopList.csv')
-print(head(stopData))
+print(stopData)
 
 #fix dates using lubridate
 ridership_data$newDate = as_date(mdy(ridership_data$date))
@@ -35,10 +55,12 @@ ridership_data$wday = weekdays(as.POSIXct(ridership_data$newDate), abbreviate = 
 #changes rides from character to numeric
 ridership_data$rides <- as.numeric(gsub(",","",ridership_data$rides))
 print(head(ridership_data))
+print(stopData)
+print(stopData$Location[stopData$MAP_ID==40050])
 
 DateSub <- subset(ridership_data, newDate == "2021-08-23")
 print(DateSub)
-ggplot(DateSub, aes(x = stationname, y = rides)) +
+ggplot(DateSub, aes(x = reorder(stationname, rides), y = rides)) +
   stat_summary(fun = sum, geom="bar", colour = "red", width = 0.5) + 
   theme_bw() +
   labs(x = "Station name", y ="Rides") + 
@@ -58,19 +80,27 @@ str(providers_loaded()$providers$Esri.WorldStreetMap)
 DateSub <- subset(ridership_data, newDate == "2021-08-23")
 dateSubSums <- aggregate(DateSub$rides, by=list(station_id=DateSub$station_id), FUN=sum)
 head(dateSubSums)
-print(dateSubSums$x[dateSubSums$station_id==40030])
+print(dateSubSums)
+print(nrow(dateSubSums))
+print(DateSub$x[DateSub$station_id==40200])
 m <- leaflet()
 m <- addTiles(m)
 #m <- addProviderTiles(m, provider = "Esri.WorldImagery")
 station_ids = strsplit(temp, "./")
-for (i in station_ids){
-  i = strsplit(i[2], ".csv")
-  a <- subset(stopData, MAP_ID == i)
-  string <- a$Location[1]
+print(station_ids)
+
+for (i in 1:45){
   print(i)
+}
+
+for (i in 1:nrow(dateSubSums)){
+  #i = strsplit(i[2], ".csv")
+  print(typeof(dateSubSums[i, "x"]))
+  a <- subset(stopData, MAP_ID == dateSubSums[i, "station_id"])
+  string <- a$Location[1]
   mat = matrix(scan(text = gsub("[()]", "", string), sep = ","), 
                ncol = 2, byrow = TRUE, dimnames = list(NULL, c("Lat", "Long")))
-  m <- addCircleMarkers(m, lng=mat[1,2], lat=mat[1,1], popup=a$STOP_NAME[1], radius = sqrt(dateSubSums$x[dateSubSums$station_id==i]/20))
+  m <- addCircleMarkers(m, lng=mat[1,2], lat=mat[1,1], popup=a$STOP_NAME[1], radius = marker_radius(dateSubSums[i, "x"]))
 }
 m
 
