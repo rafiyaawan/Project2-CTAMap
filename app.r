@@ -219,7 +219,12 @@ server <- function(input, output) {
       mat = matrix(scan(text = gsub("[()]", "", string), sep = ","), 
                    ncol = 2, byrow = TRUE, dimnames = list(NULL, c("Lat", "Long")))
       #m <- addMarkers(m, lng=mat[1,2], lat=mat[1,1], popup=a$STOP_NAME[1])
-      m <- addCircleMarkers(m, lng=mat[1,2], lat=mat[1,1], popup=a$STOP_NAME[1],radius = marker_radius(DateSubSums[i, "x"]), color = marker_color)
+      m <- addCircleMarkers(m, lng=mat[1,2], lat=mat[1,1], #popup=c(a$STOP_NAME[1], DateSubSums[i, "x"]),
+                            popup = paste(sep="",
+                                          "<b>", a$STOP_NAME[1],"</b>","<br/>",
+                                          "<b>", DateSubSums[i, "x"], "</b>"
+                            ), 
+                            radius = marker_radius(DateSubSums[i, "x"]), color = marker_color)
     }
     m
     

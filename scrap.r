@@ -100,7 +100,13 @@ for (i in 1:nrow(dateSubSums)){
   string <- a$Location[1]
   mat = matrix(scan(text = gsub("[()]", "", string), sep = ","), 
                ncol = 2, byrow = TRUE, dimnames = list(NULL, c("Lat", "Long")))
-  m <- addCircleMarkers(m, lng=mat[1,2], lat=mat[1,1], popup=a$STOP_NAME[1], radius = marker_radius(dateSubSums[i, "x"]))
+  m <- addCircleMarkers(m, lng=mat[1,2], lat=mat[1,1], 
+                        #popup=a$STOP_NAME[1],
+                        popup = paste(sep="",
+                                      "<b>", a$STOP_NAME[1],"</b>","<br/>",
+                                      "<b>", dateSubSums[i, "x"], "</b>",
+                                      ),
+                        radius = marker_radius(dateSubSums[i, "x"]))
 }
 m
 
@@ -118,3 +124,6 @@ dateNew <-ymd("20110604")
 date
 month(date)
 date+1
+
+
+paste(paste)
