@@ -112,3 +112,9 @@ string <- "(41.88322, -87.626189), (41.79542, -87.631157)"
 mat = matrix(scan(text = gsub("[()]", "", string), sep = ","), 
              ncol = 2, byrow = TRUE, dimnames = list(NULL, c("Lat", "Long")))
 mat[1,]
+
+
+dateNew <-ymd("20110604")
+date
+month(date)
+date+1

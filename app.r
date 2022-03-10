@@ -111,7 +111,22 @@ ui <- dashboardPage(
                               ")
                          ),
               fluidRow(
-                column(12,
+                column(1,
+                       fluidRow(
+                         style = "padding-left:20px",
+                         HTML("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>"),
+                         dateInput("dataDate",
+                                   "Enter Date",
+                                   value = "2021-08-23",
+                                   min = "2001-01-01",
+                                   max = "2021-11-30"
+                                   ),
+                         actionButton("nextButton", "Next"),
+                         actionButton("prevButton", "Previous")
+                         
+                       ),
+                ),
+                column(11,
                        fluidRow(
                          box(title = "Entries at L Stations on August 23, 2021", solidHeader = TRUE, status = "primary", width = 12,
                              plotOutput("initialChart", height = 600)
@@ -153,12 +168,20 @@ ui <- dashboardPage(
 #server functions
 server <- function(input, output) {
   
-  #Total entries at all L stations for Aug 23, 2021
+  dateBarChart <- reactive({
+    as_date(input$dataDate)
+  })
+  
+  #dateBarChart <- reactiveValues(as_date(input$dataDate))
+  
+  observeEvent(input$nextButton, {
+    dateBarChart() <- dateBarChart() + 1
+  })
+  
+  #Total entries at all L stations for Date
   output$initialChart <- renderPlot({
-    
-    
-    # Add up entries for each Station on Aug 23, 2021
-    ridershipAug23 <- subset(ridership_data, ridership_data$newDate == "2021-08-23")
+    # Add up entries for each Station on Date
+    ridershipAug23 <- subset(ridership_data, ridership_data$newDate == dateBarChart())
     byStation <- setNames(aggregate(ridershipAug23$rides, by=list(ridershipAug23$stationname), sum), c("Station", "Entries"))
 
     ggplot(byStation, aes(x=Station, y=Entries)) +
@@ -172,10 +195,12 @@ server <- function(input, output) {
   
   #bad code - can't find how to add a list of markers
   output$leaflet <- renderLeaflet({
+    marker_color = "blue"
     m <- leaflet()
     m <- addTiles(m)
     if(input$mapView == 2){
       m <- addProviderTiles(m, provider = "Esri.WorldImagery")
+      marker_color = "red"
     }
     else if(input$mapView == 3){
       m <- addProviderTiles(m, provider = "OpenTopoMap")
@@ -183,18 +208,18 @@ server <- function(input, output) {
       
     #TODO add the lat and long for the last four stations as (lat, long)
     #add legend for sizing
-    
+    DateSub <- subset(ridership_data, newDate == dateBarChart())
     DateSubSums <- aggregate(DateSub$rides, by=list(station_id=DateSub$station_id), FUN=sum)
     #Pick 3 backgrounds from http://leaflet-extras.github.io/leaflet-providers/preview/
     #m <- addProviderTiles(m, provider = "Esri.WorldImagery") #Thunderforest.Transport
     station_ids = strsplit(temp, "./")
-    for (i in 1:nrow(dateSubSums)){
-      a <- subset(stopData, MAP_ID == dateSubSums[i, "station_id"])
+    for (i in 1:nrow(DateSubSums)){
+      a <- subset(stopData, MAP_ID == DateSubSums[i, "station_id"])
       string <- a$Location[1]
       mat = matrix(scan(text = gsub("[()]", "", string), sep = ","), 
                    ncol = 2, byrow = TRUE, dimnames = list(NULL, c("Lat", "Long")))
       #m <- addMarkers(m, lng=mat[1,2], lat=mat[1,1], popup=a$STOP_NAME[1])
-      m <- addCircleMarkers(m, lng=mat[1,2], lat=mat[1,1], popup=a$STOP_NAME[1],radius = marker_radius(dateSubSums[i, "x"]))
+      m <- addCircleMarkers(m, lng=mat[1,2], lat=mat[1,1], popup=a$STOP_NAME[1],radius = marker_radius(DateSubSums[i, "x"]), color = marker_color)
     }
     m
     
