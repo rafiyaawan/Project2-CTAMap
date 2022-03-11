@@ -207,7 +207,7 @@ server <- function(input, output, session) {
   
   #render text
   output$barChart <- renderText({
-    return(paste("Entries at L Station on ", dateBarChart()))
+    return(paste("Entries at L Stations on ", dateBarChart()))
   })
   
   output$map <- renderText({
@@ -231,7 +231,7 @@ server <- function(input, output, session) {
       labs(x=paste("Station Name"), y="Total Entries") +
       theme_bw() +
       theme(text = element_text(family = "sans", face = "bold")) +
-      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+      theme(axis.text.x = element_text(angle = 70, hjust=1))
     m
     
   })
