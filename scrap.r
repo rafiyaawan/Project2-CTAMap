@@ -126,4 +126,11 @@ month(date)
 date+1
 
 
-paste(paste)
+a1 = c(1, 2, 3, 4, 5)
+a2 = c(6, 7, 8, 9, 10)
+a3 = c(11, 12, 13, 14, 15)
+aframe = data.frame(a1, a2, a3)
+head(aframe)
+x <- aframe[,2]
+x
+print(x[2])

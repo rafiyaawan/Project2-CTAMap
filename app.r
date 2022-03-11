@@ -35,6 +35,9 @@ ridership_data$wday = weekdays(as.POSIXct(ridership_data$newDate), abbreviate = 
 ridership_data$rides <- as.numeric(gsub(",","",ridership_data$rides))
 print(head(ridership_data))
 
+#list of stations
+station_name <- ridership_data[,3]
+
 #For year input
 years <- c(2001:2021)
 
@@ -126,7 +129,9 @@ ui <- dashboardPage(
                          actionButton("nextButton", "Next"),
                          radioButtons("sortData", h3("Sort Bars"),
                                       choices = list("Alphabetically" = 0, 
-                                                     "Ascending" = 1),selected = 0)
+                                                     "Ascending" = 1),selected = 0),
+                         #selectInput("stationname", "Select a Station", station_name)
+                         selectizeInput('stationname', label = NULL, choices = NULL, options = list(placeholder = 'Select a Station Name'))
                        ),
                 ),
                 column(8,
@@ -189,6 +194,9 @@ server <- function(input, output, session) {
     input$sortData
   })
   
+  #stationName selection
+  updateSelectizeInput(session, 'stationname', choices = station_name, server = TRUE)
+  
   #dateBarChart <- reactiveValues(as_date(input$dataDate))
   
   #Move forward a day
@@ -213,7 +221,15 @@ server <- function(input, output, session) {
     )
   })
   
-  
+  #map input click markers
+  observe({
+    click <- input$map_marker_click
+    print(click)
+    if (is.null(click))
+      return()
+    text <- paste("Lattitude ", click$latitude, "Longtitude ", click$longtitude)
+    print(text)
+  })
   
   #render text
   output$barChart <- renderText({
