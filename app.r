@@ -137,7 +137,7 @@ ui <- dashboardPage(
                          )
                        ),
                        fluidRow(
-                         column(6,
+                         column(3,
                                 fluidRow(
                                   #box(title = "Map of L Stations on August 23, 2021", solidHeader = TRUE, status = "primary", width = 12,
                                   box(title = textOutput("entriesTable"), solidHeader = TRUE, status = "primary", width = 12,
@@ -286,7 +286,7 @@ server <- function(input, output, session) {
     m <- addLegend(m,
                    "bottomright", 
                    colors = paste0(c("blue", "blue", "blue", "blue", "blue"), "; border-radius:", c(40, 60, 80, 100, 120), "px; width:", c(10, 15, 20, 25, 30), "px; height:", c(10, 15, 20, 25, 30), "px"),
-                   labels= paste0("<div style='display: inline-block;height: ", c(10, 15, 20, 25, 30), "px;margin-top: 4px;line-height: ", c(10, 15, 20, 25, 30), "px;'>", c("< 1000.0", "< 2000.0", "< 2500.0", "< 4000.0", ">= 4000.0"), "</div>"),
+                   labels= paste0("<div style='display: inline-block;height: ", c(10, 15, 20, 25, 30), "px;margin-top: 4px;line-height: ", c(10, 15, 20, 25, 30), "px;'>", c("< 1000", "< 2000", "< 2500", "< 4000", ">= 4000"), "</div>"),
                    title= "Entries",
                    opacity = 1)
     m
@@ -302,7 +302,7 @@ server <- function(input, output, session) {
        # ReturnData <- as.data.frame(aggregate(YearSub$rides, by=list(month=YearSub$month), FUN=sum))
       #}
     }, 
-    options = list(searching = FALSE, pageLength = 10, lengthChange = FALSE, order = list(list(dataSort(), 'asc'))
+    options = list(searching = FALSE, pageLength = 14, lengthChange = FALSE, order = list(list(dataSort(), 'asc'))
     ), rownames = FALSE 
     )
   )
