@@ -128,35 +128,43 @@ ui <- dashboardPage(
                                                      "Ascending" = 2),selected = 1)
                        ),
                 ),
-                column(11,
+                column(8,
                        fluidRow(
                          #box(title = "Entries at L Stations on August 23, 2021", solidHeader = TRUE, status = "primary", width = 12,
                          box(title = textOutput("barChart"), solidHeader = TRUE, status = "primary", width = 12,
                              plotOutput("initialChart", height = 600)
                          )
+                       ),
+                       fluidRow(
+                         column(6,
+                                fluidRow(
+                                  #box(title = "Map of L Stations on August 23, 2021", solidHeader = TRUE, status = "primary", width = 12,
+                                  box(title = "Table for entries", solidHeader = TRUE, status = "primary", width = 12,
+                                      #TableStationEntries
+                                      div(DT::dataTableOutput("TableStationEntries"), style = "font-size:100%")
+                                  )
+                                )
+                                
+                         )
+                       )
+                ),
+                column(3,
+                       align="center",
+                       fluidRow(
+                         style = "padding-left:20px",
+                         #box(title = "Map of L Stations on August 23, 2021", solidHeader = TRUE, status = "primary", width = 12,
+                         box(title = textOutput("map"), solidHeader = TRUE, status = "primary", width = 12,
+                             leafletOutput("leaflet", height = 1400)
+                         )
+                       ),
+                       fluidRow(
+                         style = "padding-left:20px",
+                         radioButtons("mapView", ("Select a map background"),
+                                      choices = list("Street View" = 1, "Terrain View" = 2,
+                                                     "Transport" = 3),selected = 1, inline = TRUE)
                        )
                 )
-              ),
-              fluidRow(
-                fluidRow(
-                  style = "padding-left:20px",
-                  column(12, 
-                         radioButtons("mapView", h3("Radio buttons"),
-                               choices = list("Street View" = 1, "Terrain View" = 2,
-                                              "Transport" = 3),selected = 1, inline = TRUE)
-                  )
-                ),
-                fluidRow(
-                  column(12,
-                         fluidRow(
-                           #box(title = "Map of L Stations on August 23, 2021", solidHeader = TRUE, status = "primary", width = 12,
-                           box(title = textOutput("map"), solidHeader = TRUE, status = "primary", width = 12,
-                               leafletOutput("leaflet", height = 600)
-                               )
-                           )
-                         )
-                  ) #fluidrow
-                ) #fluidrow
+              )
               
               
       ) # tabitem Visualizations close
@@ -277,6 +285,21 @@ server <- function(input, output, session) {
                    opacity = 1)
     m
   })
+  
+  output$TableStationEntries <- DT::renderDataTable(
+    DT::datatable({ 
+      #YearSub <- subset(dataLeft(), year == inputYearLeft())
+      ridershipAug23 <- subset(ridership_data, ridership_data$newDate == dateBarChart())
+      byStation <- setNames(aggregate(ridershipAug23$rides, by=list(ridershipAug23$stationname), sum), c("Station", "Entries"))
+      byStation
+      #if(nrow(YearSub)){
+       # ReturnData <- as.data.frame(aggregate(YearSub$rides, by=list(month=YearSub$month), FUN=sum))
+      #}
+    }, 
+    options = list(searching = FALSE, pageLength = 10, lengthChange = FALSE, order = list(list(1, 'desc'))
+    ), rownames = FALSE 
+    )
+  )
   
 }
 
