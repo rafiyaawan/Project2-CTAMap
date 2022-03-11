@@ -112,6 +112,7 @@ ui <- dashboardPage(
                          ),
               fluidRow(
                 column(1,
+                       align = "center",
                        fluidRow(
                          style = "padding-left:20px",
                          HTML("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>"),
@@ -124,8 +125,8 @@ ui <- dashboardPage(
                          actionButton("prevButton", "Previous"),
                          actionButton("nextButton", "Next"),
                          radioButtons("sortData", h3("Sort Bars"),
-                                      choices = list("Alphabetically" = 1, 
-                                                     "Ascending" = 2),selected = 1)
+                                      choices = list("Alphabetically" = 0, 
+                                                     "Ascending" = 1),selected = 0)
                        ),
                 ),
                 column(8,
@@ -139,7 +140,7 @@ ui <- dashboardPage(
                          column(6,
                                 fluidRow(
                                   #box(title = "Map of L Stations on August 23, 2021", solidHeader = TRUE, status = "primary", width = 12,
-                                  box(title = "Table for entries", solidHeader = TRUE, status = "primary", width = 12,
+                                  box(title = textOutput("entriesTable"), solidHeader = TRUE, status = "primary", width = 12,
                                       #TableStationEntries
                                       div(DT::dataTableOutput("TableStationEntries"), style = "font-size:100%")
                                   )
@@ -154,7 +155,7 @@ ui <- dashboardPage(
                          style = "padding-left:20px",
                          #box(title = "Map of L Stations on August 23, 2021", solidHeader = TRUE, status = "primary", width = 12,
                          box(title = textOutput("map"), solidHeader = TRUE, status = "primary", width = 12,
-                             leafletOutput("leaflet", height = 1400)
+                             leafletOutput("leaflet", height = 1200)
                          )
                        ),
                        fluidRow(
@@ -213,6 +214,7 @@ server <- function(input, output, session) {
   })
   
   
+  
   #render text
   output$barChart <- renderText({
     return(paste("Entries at L Stations on ", dateBarChart()))
@@ -222,13 +224,17 @@ server <- function(input, output, session) {
     return(paste("Map of L Stations on ", dateBarChart()))
   })
   
+  output$entriesTable <- renderText({
+    return(paste("Stations and entries on ", dateBarChart()))
+  })
+  
   #Total entries at all L stations for Date
   output$initialChart <- renderPlot({
     # Add up entries for each Station on Date
     ridershipAug23 <- subset(ridership_data, ridership_data$newDate == dateBarChart())
     byStation <- setNames(aggregate(ridershipAug23$rides, by=list(ridershipAug23$stationname), sum), c("Station", "Entries"))
 
-    if(dataSort() == 1){
+    if(dataSort() == 0){
       m <- ggplot(byStation, aes(x=Station, y=Entries)) 
     }
     else{
@@ -296,7 +302,7 @@ server <- function(input, output, session) {
        # ReturnData <- as.data.frame(aggregate(YearSub$rides, by=list(month=YearSub$month), FUN=sum))
       #}
     }, 
-    options = list(searching = FALSE, pageLength = 10, lengthChange = FALSE, order = list(list(1, 'desc'))
+    options = list(searching = FALSE, pageLength = 10, lengthChange = FALSE, order = list(list(dataSort(), 'asc'))
     ), rownames = FALSE 
     )
   )
