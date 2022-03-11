@@ -121,8 +121,8 @@ ui <- dashboardPage(
                                    min = "2001-01-01",
                                    max = "2021-11-30"
                                    ),
-                         actionButton("nextButton", "Next"),
                          actionButton("prevButton", "Previous"),
+                         actionButton("nextButton", "Next"),
                          radioButtons("sortData", h3("Sort Bars"),
                                       choices = list("Alphabetically" = 1, 
                                                      "Ascending" = 2),selected = 1)
@@ -170,7 +170,7 @@ ui <- dashboardPage(
 
 
 #server functions
-server <- function(input, output) {
+server <- function(input, output, session) {
   
   dateBarChart <- reactive({
     as_date(input$dataDate)
@@ -182,9 +182,28 @@ server <- function(input, output) {
   
   #dateBarChart <- reactiveValues(as_date(input$dataDate))
   
+  #Move forward a day
   observeEvent(input$nextButton, {
-    dateBarChart() <- dateBarChart() + 1
+    nextDate <- input$dataDate + 1
+    updateDateInput(session, "dataDate",
+                    label = "Enter Date",
+                    value = nextDate,
+                    min = "2001-01-01",
+                    max = "2021-11-30"
+    )
   })
+  
+  #Move backward a day
+  observeEvent(input$prevButton, {
+    nextDate <- input$dataDate - 1
+    updateDateInput(session, "dataDate",
+                    label = "Enter Date",
+                    value = nextDate,
+                    min = "2001-01-01",
+                    max = "2021-11-30"
+    )
+  })
+  
   
   #render text
   output$barChart <- renderText({
