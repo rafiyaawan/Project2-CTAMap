@@ -133,7 +133,9 @@ ui <- dashboardPage(
                          #selectInput("stationname", "Select a Station", station_name)
                          h3("Select a station and year to view visualizations"),
                          selectizeInput('stationname', label = NULL, choices = NULL, options = list(placeholder = 'Select a Station Name')),
-                         selectInput("year", NULL, years, selected = "2001")
+                         selectInput("year", NULL, years, selected = "2001"),
+                         checkboxInput("difference", "View Difference in rides for the years", value = FALSE),
+                         selectInput("year2", "select year to view difference", years, selected = "2001"),
                        ),
                 ),
                 column(8,
@@ -222,6 +224,12 @@ server <- function(input, output, session) {
   inputYear <- reactive({
     as.numeric(input$year)
   })
+  
+  inputYear2 <- reactive({
+    as.numeric(input$year2)
+  })
+  
+  
   
   stationData <- reactive({
     station_data <- subset(ridership_data, ridership_data$stationname == input$stationname)
@@ -316,6 +324,7 @@ server <- function(input, output, session) {
     #add legend for sizing
     DateSub <- subset(ridership_data, newDate == dateBarChart())
     DateSubSums <- aggregate(DateSub$rides, by=list(station_id=DateSub$station_id), FUN=sum)
+    
     #Pick 3 backgrounds from http://leaflet-extras.github.io/leaflet-providers/preview/
     #m <- addProviderTiles(m, provider = "Esri.WorldImagery") #Thunderforest.Transport
     station_ids = strsplit(temp, "./")
