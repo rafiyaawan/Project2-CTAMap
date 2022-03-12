@@ -423,8 +423,14 @@ server <- function(input, output, session) {
   output$TableStationEntries <- DT::renderDataTable(
     DT::datatable({ 
       #YearSub <- subset(dataLeft(), year == inputYearLeft())
-      ridershipAug23 <- subset(ridership_data, ridership_data$newDate == dateBarChart())
-      byStation <- setNames(aggregate(ridershipAug23$rides, by=list(ridershipAug23$stationname), sum), c("Station", "Entries"))
+      ridershipDate <- subset(ridership_data, ridership_data$newDate == dateBarChart())
+      ridershipDate2 <- subset(ridership_data, ridership_data$newDate == dateBarChart2())
+      
+      if(dateDifference()){
+        ridershipDate$rides <- ridershipDate$rides - ridershipDate2$rides
+      }
+      
+      byStation <- setNames(aggregate(ridershipDate$rides, by=list(ridershipDate$stationname), sum), c("Station", "Entries"))
       byStation
       #if(nrow(YearSub)){
        # ReturnData <- as.data.frame(aggregate(YearSub$rides, by=list(month=YearSub$month), FUN=sum))
