@@ -132,6 +132,9 @@ ui <- dashboardPage(
                                                      "Ascending" = 1),selected = 0),
                          #selectInput("stationname", "Select a Station", station_name)
                          h3("Select a station and year to view visualizations"),
+                         radioButtons("plotOrTable", h3("Plots or Tables?"),
+                                      choices = list("Plots" = 0, 
+                                                     "Tables" = 1),selected = 0, inline="T"),
                          selectizeInput('stationname', label = NULL, choices = NULL, options = list(placeholder = 'Select a Station Name')),
                          selectInput("year", NULL, years, selected = "2021"),
                          checkboxInput("difference", "View Difference in rides for the years", value = FALSE),
@@ -154,50 +157,57 @@ ui <- dashboardPage(
                                   )
                                 )
                                 ),
-                         # column(3,
-                         #        fluidRow(
-                         #          style = "padding-left:20px",
-                         #          box(title = paste("Rides per Day"), solidHeader = TRUE, status = "primary", width = 40,
-                         #              plotOutput("AllDays", height = 300)
-                         #          )
-                         #        )
-                         #        ),
-                         # column(3,
-                         #        fluidRow(
-                         #          style = "padding-left:20px",
-                         #          box(title = paste("Rides per Month"), solidHeader = TRUE, status = "primary", width = 40,
-                         #              plotOutput("MonthlyData", height = 300)
-                         #          )
-                         #        )
-                         #        ),
-                         # column(3,
-                         #        fluidRow(
-                         #          style = "padding-left:20px",
-                         #          box(title = paste("Rides per Weekday"), solidHeader = TRUE, status = "primary", width = 40,
-                         #              plotOutput("WeeklyData", height = 300)
-                         #          )
-                         #        )
-                         #        ),
-                         column(3,
-                                fluidRow(
-                                  box(title = paste("Rides per Day"), solidHeader = TRUE, status = "primary", width = 12,
-                                      div(DT::dataTableOutput("TableAllDays"), style = "font-size:100%")
+                         conditionalPanel(
+                           condition = "input.plotOrTable == 0",
+                           
+                           column(3,
+                                  fluidRow(
+                                    style = "padding-left:20px",
+                                    box(title = paste("Rides per Day"), solidHeader = TRUE, status = "primary", width = 40,
+                                        plotOutput("AllDays", height = 300)
+                                    )
                                   )
-                                )
-                         ),
-                         column(3,
-                                fluidRow(
-                                  box(title = paste("Rides per Month"), solidHeader = TRUE, status = "primary", width = 12,
-                                      div(DT::dataTableOutput("TableMonthlyData"), style = "font-size:100%")
+                                  ),
+                           column(3,
+                                  fluidRow(
+                                    style = "padding-left:20px",
+                                    box(title = paste("Rides per Month"), solidHeader = TRUE, status = "primary", width = 40,
+                                        plotOutput("MonthlyData", height = 300)
+                                    )
                                   )
-                                )
-                         ),
-                         column(3,
-                                fluidRow(
-                                  box(title = paste("Rides per Weekday"), solidHeader = TRUE, status = "primary", width = 12,
-                                      div(DT::dataTableOutput("TableWeeklyData"), style = "font-size:100%")
+                                  ),
+                           column(3,
+                                  fluidRow(
+                                    style = "padding-left:20px",
+                                    box(title = paste("Rides per Weekday"), solidHeader = TRUE, status = "primary", width = 40,
+                                        plotOutput("WeeklyData", height = 300)
+                                    )
                                   )
-                                )
+                                  )
+                         ), #end of first, plots, conditionalPanel
+                         conditionalPanel(
+                           condition = "input.plotOrTable == 1",
+                           column(3,
+                                  fluidRow(
+                                    box(title = paste("Rides per Day"), solidHeader = TRUE, status = "primary", width = 12,
+                                        div(DT::dataTableOutput("TableAllDays"), style = "font-size:100%")
+                                    )
+                                  )
+                           ),
+                           column(3,
+                                  fluidRow(
+                                    box(title = paste("Rides per Month"), solidHeader = TRUE, status = "primary", width = 12,
+                                        div(DT::dataTableOutput("TableMonthlyData"), style = "font-size:100%")
+                                    )
+                                  )
+                           ),
+                           column(3,
+                                  fluidRow(
+                                    box(title = paste("Rides per Weekday"), solidHeader = TRUE, status = "primary", width = 12,
+                                        div(DT::dataTableOutput("TableWeeklyData"), style = "font-size:100%")
+                                    )
+                                  )
+                           )
                          )
                        )
                 ),
