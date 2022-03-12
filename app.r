@@ -29,7 +29,7 @@ ridership_data$newDate = as_date(mdy(ridership_data$date))
 #add day, month and year data to csv
 ridership_data$year = year(ridership_data$newDate)
 ridership_data$month = month(ridership_data$newDate, abbr = TRUE, label = TRUE)
-ridership_data$wday = weekdays(as.POSIXct(ridership_data$newDate), abbreviate = T)
+ridership_data$wday = wday(ridership_data$newDate, label=TRUE)
 
 #changes rides from character to numeric
 ridership_data$rides <- as.numeric(gsub(",","",ridership_data$rides))
@@ -428,7 +428,6 @@ server <- function(input, output, session) {
   output$WeeklyData <- renderPlot({
     YearSub <- subset(stationData(), year == inputYear())
     YearSubSums <- setNames(aggregate(YearSub$rides, by=list(YearSub$wday), FUN=sum), c("wday", "rides"))
-    YearSubSums$wday <- factor(YearSubSums$wday, levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))
     ggplot(YearSubSums, aes(x = wday, y = rides/1000)) + geom_bar(stat = "identity", fill = "#33647A", width=0.8) +
       labs(x = "Weekday", y ="Rides (in thousands)") + 
       theme_bw() +
@@ -464,7 +463,6 @@ server <- function(input, output, session) {
     DT::datatable({ 
       YearSub <- subset(stationData(), year == inputYear())
       YearSubSums <- setNames(aggregate(YearSub$rides, by=list(YearSub$wday), FUN=sum), c("wday", "rides"))
-      YearSubSums$wday <- factor(YearSubSums$wday, levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))
       YearSubSums
     }, 
     options = list(searching = FALSE, pageLength = 7, lengthChange = FALSE, order = list(list(0, 'asc'))
