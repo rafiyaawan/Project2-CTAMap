@@ -304,15 +304,18 @@ server <- function(input, output, session) {
   
   #render text
   output$barChart <- renderText({
-    return(paste("Entries at L Stations on ", dateBarChart()))
+    date <- dateBarChart()
+    return(paste("Entries at L Stations on ", date, " - ", weekdays(date)))
   })
   
   output$map <- renderText({
-    return(paste("Map of L Stations on ", dateBarChart()))
+    date <- dateBarChart()
+    return(paste("Map of L Stations on ", date, " - ", weekdays(date)))
   })
   
   output$entriesTable <- renderText({
-    return(paste("Stations and Entries on ", dateBarChart()))
+    date <- dateBarChart()
+    return(paste("Stations and Entries on ", date, " - ", weekdays(date)))
   })
   
   #Total entries at all L stations for Date
@@ -441,7 +444,7 @@ server <- function(input, output, session) {
       YearSubSums <- setNames(aggregate(YearSub$rides, by=list(YearSub$newDate), FUN=sum), c("Date", "Rides"))
       YearSubSums
     }, 
-    options = list(searching = FALSE, pageLength = 10, lengthChange = FALSE, order = list(list(0, 'asc'))
+    options = list(searching = FALSE, pageLength = 7, lengthChange = FALSE, order = list(list(0, 'asc'))
     ), rownames = FALSE 
     )
   )
@@ -452,7 +455,7 @@ server <- function(input, output, session) {
       YearSubSums <- setNames(aggregate(YearSub$rides, by=list(YearSub$month), FUN=sum), c("Month", "Rides"))
       YearSubSums
     }, 
-    options = list(searching = FALSE, pageLength = 10, lengthChange = FALSE, order = list(list(0, 'asc'))
+    options = list(searching = FALSE, pageLength = 7, lengthChange = FALSE, order = list(list(0, 'asc'))
     ), rownames = FALSE 
     )
   )
@@ -464,7 +467,7 @@ server <- function(input, output, session) {
       YearSubSums$wday <- factor(YearSubSums$wday, levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))
       YearSubSums
     }, 
-    options = list(searching = FALSE, pageLength = 10, lengthChange = FALSE, order = list(list(0, 'asc'))
+    options = list(searching = FALSE, pageLength = 7, lengthChange = FALSE, order = list(list(0, 'asc'))
     ), rownames = FALSE 
     )
   )
