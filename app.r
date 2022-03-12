@@ -133,9 +133,9 @@ ui <- dashboardPage(
                          #selectInput("stationname", "Select a Station", station_name)
                          h3("Select a station and year to view visualizations"),
                          selectizeInput('stationname', label = NULL, choices = NULL, options = list(placeholder = 'Select a Station Name')),
-                         selectInput("year", NULL, years, selected = "2001"),
+                         selectInput("year", NULL, years, selected = "2021"),
                          checkboxInput("difference", "View Difference in rides for the years", value = FALSE),
-                         selectInput("year2", "select year to view difference", years, selected = "2001"),
+                         selectInput("year2", "select year to view difference", years, selected = "2021"),
                        ),
                 ),
                 column(8,
@@ -148,37 +148,57 @@ ui <- dashboardPage(
                        fluidRow(
                          column(3,
                                 fluidRow(
-                                  #box(title = "Map of L Stations on August 23, 2021", solidHeader = TRUE, status = "primary", width = 12,
                                   box(title = textOutput("entriesTable"), solidHeader = TRUE, status = "primary", width = 12,
                                       #TableStationEntries
                                       div(DT::dataTableOutput("TableStationEntries"), style = "font-size:100%")
                                   )
                                 )
                                 ),
+                         # column(3,
+                         #        fluidRow(
+                         #          style = "padding-left:20px",
+                         #          box(title = paste("Rides per Day"), solidHeader = TRUE, status = "primary", width = 40,
+                         #              plotOutput("AllDays", height = 300)
+                         #          )
+                         #        )
+                         #        ),
+                         # column(3,
+                         #        fluidRow(
+                         #          style = "padding-left:20px",
+                         #          box(title = paste("Rides per Month"), solidHeader = TRUE, status = "primary", width = 40,
+                         #              plotOutput("MonthlyData", height = 300)
+                         #          )
+                         #        )
+                         #        ),
+                         # column(3,
+                         #        fluidRow(
+                         #          style = "padding-left:20px",
+                         #          box(title = paste("Rides per Weekday"), solidHeader = TRUE, status = "primary", width = 40,
+                         #              plotOutput("WeeklyData", height = 300)
+                         #          )
+                         #        )
+                         #        ),
                          column(3,
                                 fluidRow(
-                                  style = "padding-left:20px",
-                                  box(title = paste("Rides per Day"), solidHeader = TRUE, status = "primary", width = 40,
-                                      plotOutput("AllDays", height = 300)
+                                  box(title = paste("Rides per Day"), solidHeader = TRUE, status = "primary", width = 12,
+                                      div(DT::dataTableOutput("TableAllDays"), style = "font-size:100%")
                                   )
                                 )
-                                ),
+                         ),
                          column(3,
                                 fluidRow(
-                                  style = "padding-left:20px",
-                                  box(title = paste("Rides per Month"), solidHeader = TRUE, status = "primary", width = 40,
-                                      plotOutput("MonthlyData", height = 300)
+                                  box(title = paste("Rides per Month"), solidHeader = TRUE, status = "primary", width = 12,
+                                      div(DT::dataTableOutput("TableMonthlyData"), style = "font-size:100%")
                                   )
                                 )
-                                ),
+                         ),
                          column(3,
                                 fluidRow(
-                                  style = "padding-left:20px",
-                                  box(title = paste("Rides per Weekday"), solidHeader = TRUE, status = "primary", width = 40,
-                                      plotOutput("WeeklyData", height = 300)
+                                  box(title = paste("Rides per Weekday"), solidHeader = TRUE, status = "primary", width = 12,
+                                      div(DT::dataTableOutput("TableWeeklyData"), style = "font-size:100%")
                                   )
                                 )
-                                )
+                         )
                        )
                 ),
                 column(3,
@@ -282,7 +302,7 @@ server <- function(input, output, session) {
   })
   
   output$entriesTable <- renderText({
-    return(paste("Stations and entries on ", dateBarChart()))
+    return(paste("Stations and Entries on ", dateBarChart()))
   })
   
   #Total entries at all L stations for Date
@@ -365,6 +385,7 @@ server <- function(input, output, session) {
     )
   )
   
+  # Per-Station Data Plots
   
   output$AllDays <- renderPlot({
     #inputYear = as.numeric(input$year)
@@ -373,7 +394,7 @@ server <- function(input, output, session) {
     YearSubSums <- setNames(aggregate(YearSub$rides, by=list(YearSub$newDate), FUN=sum), c("date", "rides"))
     ggplot(YearSubSums, aes(x = date, y = rides/1000, fill = month(date,abbr = TRUE, label = TRUE))) + 
       geom_bar(stat = "identity", show.legend = FALSE) +
-      labs(x = "date", y ="Rides (in thousands)") + 
+      labs(x = "Date", y ="Rides (in thousands)") + 
       theme_bw() +
       #theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
       theme(text = element_text(family = "sans", face = "bold")) +
@@ -402,6 +423,41 @@ server <- function(input, output, session) {
       theme(plot.title = element_text(hjust = 0.5, size=20), axis.title=element_text(size=12))  
   })
   
+  # Per-Station Data Tables
+  
+  output$TableAllDays <- DT::renderDataTable(
+    DT::datatable({ 
+      YearSub <- subset(stationData(), year == inputYear())
+      YearSubSums <- setNames(aggregate(YearSub$rides, by=list(YearSub$newDate), FUN=sum), c("Date", "Rides"))
+      YearSubSums
+    }, 
+    options = list(searching = FALSE, pageLength = 10, lengthChange = FALSE, order = list(list(0, 'asc'))
+    ), rownames = FALSE 
+    )
+  )
+  
+  output$TableMonthlyData <- DT::renderDataTable(
+    DT::datatable({ 
+      YearSub <- subset(stationData(), year == inputYear())
+      YearSubSums <- setNames(aggregate(YearSub$rides, by=list(YearSub$month), FUN=sum), c("Month", "Rides"))
+      YearSubSums
+    }, 
+    options = list(searching = FALSE, pageLength = 10, lengthChange = FALSE, order = list(list(0, 'asc'))
+    ), rownames = FALSE 
+    )
+  )
+  
+  output$TableWeeklyData <- DT::renderDataTable(
+    DT::datatable({ 
+      YearSub <- subset(stationData(), year == inputYear())
+      YearSubSums <- setNames(aggregate(YearSub$rides, by=list(YearSub$wday), FUN=sum), c("wday", "rides"))
+      YearSubSums$wday <- factor(YearSubSums$wday, levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))
+      YearSubSums
+    }, 
+    options = list(searching = FALSE, pageLength = 10, lengthChange = FALSE, order = list(list(0, 'asc'))
+    ), rownames = FALSE 
+    )
+  )
   
 }
 
