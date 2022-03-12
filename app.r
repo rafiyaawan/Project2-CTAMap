@@ -385,7 +385,7 @@ server <- function(input, output, session) {
     
     
     if(dateDifference()){
-      DateSub$rides <- DateSub$rides - DateSub2$rides
+      DateSub$rides <- (DateSub$rides - DateSub2$rides) * 10
     }
     
     DateSubSums <- aggregate(DateSub$rides, by=list(station_id=DateSub$station_id), FUN=sum)
@@ -408,7 +408,7 @@ server <- function(input, output, session) {
                                           "<b>", a$STOP_NAME[1],"</b>","<br/>",
                                           "<b>", DateSubSums[i, "x"], "</b>"
                             ), 
-                            radius = marker_radius(abs(DateSubSums[i, "x"])), color = marker_color, fill = FALSE)
+                            radius = sqrt(abs(DateSubSums[i, "x"]))/2, color = marker_color)
     }
     
     m <- addLegend(m,
