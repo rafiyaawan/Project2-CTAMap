@@ -16,6 +16,7 @@ library(viridis)
 #read in the data for stations
 temp = list.files(pattern="*.csv", full.name = T)
 temp = temp[-148] #delete the last file to be read separately
+
 #read in the files
 ridership_data = ldply(temp, read_csv)
 print(head(ridership_data))
@@ -41,27 +42,6 @@ station_name <- ridership_data[,3]
 
 #For year input
 years <- c(2001:2021)
-
-#radius of markers function
-marker_radius <- function(num_rides) {
-  radius = 0
-  if (num_rides < 1000.0){
-    radius = 6
-  }
-  else if (num_rides < 2000.0){
-    radius = 8
-  }
-  else if (num_rides < 2500.0){
-    radius = 10
-  }
-  else if(num_rides < 4000.0){
-    radius = 12
-  }
-  else{
-    radius = 14
-  }
-  return (radius)
-}
 
 # Create the shiny dashboard
 ui <- dashboardPage(
@@ -96,6 +76,7 @@ ui <- dashboardPage(
               h2("Stations Location Data From: Chicago Data Portal at https://data.cityofchicago.org/Transportation/CTA-System-Information-List-of-L-Stops/8pix-ypme"),
               h2("Application Written by Ameesha Saxena and Rafiya Awan for UIC CS 424 Spring 2022")
       ), # tabitem About close
+      
       tabItem(tabName = "Datavisualizations",
               tags$style(HTML("
               .box.box-solid.box-primary>.box-header {
@@ -148,7 +129,8 @@ ui <- dashboardPage(
                                       choices = list("Plots" = 0, 
                                                      "Tables" = 1),selected = 0, inline="T")
                        ),
-                ),
+                       ),
+
                 column(8,
                        fluidRow(
                          #box(title = "Entries at L Stations on August 23, 2021", solidHeader = TRUE, status = "primary", width = 12,
@@ -251,34 +233,38 @@ ui <- dashboardPage(
 #server functions
 server <- function(input, output, session) {
   
+  
+  #date for the initial bar chart
   dateBarChart <- reactive({
     as_date(input$dataDate)
   })
   
+  #date for the difference in rides in the bar chart
   dateBarChart2 <- reactive({
     as_date(input$dataDate2)
   })
   
+  #to sort or not to sort
   dataSort <- reactive({
     input$sortData
   })
   
+  #year for project 1 graphs
   inputYear <- reactive({
     as.numeric(input$year)
   })
   
-  inputYear2 <- reactive({
-    as.numeric(input$year2)
-  })
-  
+  #select station for project 1 graphs, convert to subset of dataframe
   stationData <- reactive({
     station_data <- subset(ridership_data, ridership_data$stationname == input$stationname)
   })
   
+  #to show the difference in rides for two dates
   dateDifference<- reactive({
     input$difference
   })
   
+  #map backgrounds
   mapView <- reactive({
     input$mapView
   })
@@ -286,7 +272,6 @@ server <- function(input, output, session) {
   #stationName selection
   updateSelectizeInput(session, 'stationname', choices = station_name, server = TRUE)
   
-  #dateBarChart <- reactiveValues(as_date(input$dataDate))
   
   #Move forward a day
   observeEvent(input$nextButton, {
@@ -320,7 +305,8 @@ server <- function(input, output, session) {
     print(text)
   })
   
-  #render text
+  #render text for box titles
+  
   output$barChart <- renderText({
     date <- dateBarChart()
     return(paste("Entries at L Stations on ", date, " - ", weekdays(date)))
@@ -368,16 +354,16 @@ server <- function(input, output, session) {
       theme(axis.text.x = element_text(angle = 70, hjust=1))
       
     m
-    #fill="#33647A"
   })
   
   
-  
-  #bad code - can't find how to add a list of markers
+  #output leaflet map with markers based on input values
   output$leaflet <- renderLeaflet({
     marker_color = "#33647A"
     m <- leaflet()
     m <- addTiles(m)
+    
+    #add backgrounds
     if(mapView() == 1){
       m <- addProviderTiles(m, provider = "Wikimedia")
     }
@@ -388,20 +374,18 @@ server <- function(input, output, session) {
       m <- addProviderTiles(m, provider = "CartoDB.Positron")
     }
     
-    #TODO add the lat and long for the last four stations as (lat, long)
-    #add legend for sizing
+    #subset for both the dates
     DateSub <- subset(ridership_data, newDate == dateBarChart())
     DateSub2 <- subset(ridership_data,  newDate == dateBarChart2())
     
-    
+    #calculate difference
     if(dateDifference()){
       DateSub$rides <- (DateSub$rides - DateSub2$rides) * 10
     }
     
     DateSubSums <- aggregate(DateSub$rides, by=list(station_id=DateSub$station_id), FUN=sum)
 
-    #Pick 3 backgrounds from http://leaflet-extras.github.io/leaflet-providers/preview/
-    #m <- addProviderTiles(m, provider = "Esri.WorldImagery") #Thunderforest.Transport
+    #backgrounds from http://leaflet-extras.github.io/leaflet-providers/preview/
     station_ids = strsplit(temp, "./")
     
     for (i in 1:nrow(DateSubSums)){
@@ -431,6 +415,7 @@ server <- function(input, output, session) {
     m
   })
   
+  #output table for the intitial graph
   output$TableStationEntries <- DT::renderDataTable(
     DT::datatable({ 
       #YearSub <- subset(dataLeft(), year == inputYearLeft())
