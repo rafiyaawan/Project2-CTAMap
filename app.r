@@ -279,7 +279,7 @@ server <- function(input, output, session) {
   })
   
   #stationName selection
-  updateSelectizeInput(session, 'stationname', choices = station_name, server = TRUE)
+  updateSelectizeInput(session, 'stationname', choices = station_name, server = TRUE, selected="UIC-Halsted")
   
   
   #Move forward a day
@@ -305,13 +305,29 @@ server <- function(input, output, session) {
   })
   
   #map input click markers
-  observe({
-    click <- input$map_marker_click
-    print(click)
+  observeEvent(input$leaflet_marker_click, {
+    
+    click <- input$leaflet_marker_click
+    
     if (is.null(click))
       return()
-    text <- paste("Lattitude ", click$latitude, "Longtitude ", click$longtitude)
-    print(text)
+    
+    lat <- substr(click$lat, start=1, stop=7)
+    long <- substr(click$lng, start=1, stop=8)
+    
+    stopsAndLocations <- stopData[ , c("MAP_ID", "Location")]
+    head(stopsAndLocations)
+    
+    stopsAndLocations$Latitude <- as.numeric(substr(stopsAndLocations$Location, start=2, stop=8))
+    stopsAndLocations$Longitude <- sub(".*, ", "", stopsAndLocations$Location)
+    stopsAndLocations$Longitude <- as.numeric(substr(stopsAndLocations$Longitude, start=1, stop=8))
+    
+    selectedStationId <- subset(stopsAndLocations, stopsAndLocations$Latitude == lat & stopsAndLocations$Longitude == long, select=1)
+    selectedStation <- ridership_data[ridership_data$station_id == selectedStationId[1,], ]
+    print(selectedStation[1,]$stationname)
+    
+    updateSelectizeInput(session, 'stationname', choices = station_name, server = TRUE, selected=selectedStation[1,]$stationname)
+    
   })
   
   #render text for box titles
