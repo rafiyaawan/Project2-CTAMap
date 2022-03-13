@@ -134,3 +134,11 @@ head(aframe)
 x <- aframe[,2]
 x
 print(x[2])
+
+providers
+
+m<-leaflet()
+m<-addTiles(m)
+m<-addProviderTiles(m, provider = 'Wikimedia')
+m<-addMarkers(m, lat = 40, lng = -80)
+m

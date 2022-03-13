@@ -231,8 +231,8 @@ ui <- dashboardPage(
                        fluidRow(
                          style = "padding-left:20px",
                          radioButtons("mapView", ("Select a map background"),
-                                      choices = list("Street View" = 1, "Terrain View" = 2,
-                                                     "Transport" = 3),selected = 1, inline = TRUE)
+                                      choices = list("Street View" = 1, "Satellite View" = 2,
+                                                     "GrayScale" = 3),selected = 1, inline = TRUE)
                        )
                 )
               )
@@ -277,6 +277,10 @@ server <- function(input, output, session) {
   
   dateDifference<- reactive({
     input$difference
+  })
+  
+  mapView <- reactive({
+    input$mapView
   })
   
   #stationName selection
@@ -374,11 +378,14 @@ server <- function(input, output, session) {
     marker_color = "#33647A"
     m <- leaflet()
     m <- addTiles(m)
-    if(input$mapView == 2){
+    if(mapView() == 1){
+      m <- addProviderTiles(m, provider = "Wikimedia")
+    }
+    else if(mapView() == 2){
       m <- addProviderTiles(m, provider = "Esri.WorldImagery")
     }
-    else if(input$mapView == 3){
-      m <- addProviderTiles(m, provider = "OpenTopoMap")
+    else if(mapView() == 3){
+      m <- addProviderTiles(m, provider = "CartoDB.Positron")
     }
     
     #TODO add the lat and long for the last four stations as (lat, long)
@@ -396,6 +403,7 @@ server <- function(input, output, session) {
     #Pick 3 backgrounds from http://leaflet-extras.github.io/leaflet-providers/preview/
     #m <- addProviderTiles(m, provider = "Esri.WorldImagery") #Thunderforest.Transport
     station_ids = strsplit(temp, "./")
+    
     for (i in 1:nrow(DateSubSums)){
       marker_color = "#33647A"
       a <- subset(stopData, MAP_ID == DateSubSums[i, "station_id"])
@@ -416,8 +424,8 @@ server <- function(input, output, session) {
     
     m <- addLegend(m,
                    "bottomright", 
-                   colors = paste0(c("blue", "blue", "blue", "blue", "blue"), "; border-radius:", c(40, 60, 80, 100, 120), "px; width:", c(10, 15, 20, 25, 30), "px; height:", c(10, 15, 20, 25, 30), "px"),
-                   labels= paste0("<div style='display: inline-block;height: ", c(10, 15, 20, 25, 30), "px;margin-top: 4px;line-height: ", c(10, 15, 20, 25, 30), "px;'>", c("< 1000", "< 2000", "< 2500", "< 4000", ">= 4000"), "</div>"),
+                   colors = paste0(c("#33647A", "#631a1a", "#33647A"), "; border-radius:", c(40, 40, 40), "px; width:", c(20, 20, 20), "px; height:", c(20, 20, 20), "px"),
+                   labels= paste0("<div style='display: inline-block;height: ", c(20, 20, 20), "px;margin-top: 4px;line-height: ", c(20, 20, 20), "px;'>", c("difference > 0", "difference < 0", "size proportional to #rides"), "</div>"),
                    title= "Entries",
                    opacity = 1)
     m
