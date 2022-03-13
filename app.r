@@ -149,31 +149,40 @@ ui <- dashboardPage(
                                 ),
                          conditionalPanel(
                            condition = "input.plotOrTable == 0",
-                           
-                           column(3,
-                                  fluidRow(
-                                    style = "padding-left:20px",
-                                    box(title = paste("Rides per Day"), solidHeader = TRUE, status = "primary", width = 40,
-                                        plotOutput("AllDays", height = 600)
-                                    )
-                                  )
-                                  ),
-                           column(3,
-                                  fluidRow(
-                                    style = "padding-left:20px",
-                                    box(title = paste("Rides per Month"), solidHeader = TRUE, status = "primary", width = 40,
-                                        plotOutput("MonthlyData", height = 600)
-                                    )
-                                  )
-                                  ),
-                           column(3,
-                                  fluidRow(
-                                    style = "padding-left:20px",
-                                    box(title = paste("Rides per Weekday"), solidHeader = TRUE, status = "primary", width = 40,
-                                        plotOutput("WeeklyData", height = 600)
-                                    )
-                                  )
-                                  )
+                           column(9,
+                            fluidRow(
+                               column(4,
+                                      fluidRow(
+                                        style = "padding-left:20px",
+                                        box(title = paste("Rides per Day"), solidHeader = TRUE, status = "primary", width = 40,
+                                            plotOutput("AllDays", height = 300)
+                                        )
+                                      )
+                                      ),
+                               column(4,
+                                      fluidRow(
+                                        style = "padding-left:20px",
+                                        box(title = paste("Rides per Month"), solidHeader = TRUE, status = "primary", width = 40,
+                                            plotOutput("MonthlyData", height = 300)
+                                        )
+                                      )
+                                      ),
+                               column(4,
+                                      fluidRow(
+                                        style = "padding-left:20px",
+                                        box(title = paste("Rides per Weekday"), solidHeader = TRUE, status = "primary", width = 40,
+                                            plotOutput("WeeklyData", height = 300)
+                                        )
+                                      )
+                                      )
+                            ), 
+                            fluidRow(
+                              style = "padding-left:20px",
+                              box(title = paste("Rides per Year"), solidHeader = TRUE, status = "primary", width = 40,
+                                  plotOutput("AllYears", height = 300)
+                              )
+                            )
+                           )
                          ), #end of first, plots, conditionalPanel
                          conditionalPanel(
                            condition = "input.plotOrTable == 1",
@@ -474,6 +483,15 @@ server <- function(input, output, session) {
       theme(plot.title = element_text(hjust = 0.5, size=20), axis.title=element_text(size=12))  
   })
   
+  output$AllYears <- renderPlot({
+    YearSubSums <- setNames(aggregate(stationData()$rides, by=list(stationData()$year), FUN=sum), c("year", "rides"))
+    ggplot(YearSubSums, aes(x = year, y = rides/100000)) + geom_bar(stat = "identity", fill = "#91b3bb", width=0.8) +
+      labs(x = "Year", y ="Rides (in hundred thousands)") + 
+      theme_bw() +
+      theme(text = element_text(family = "sans", face = "bold")) +
+      theme(plot.title = element_text(hjust = 0.5, size=25), axis.title=element_text(size=15)) 
+  })
+  
   
   # Per-Station Data Tables
   
@@ -483,7 +501,7 @@ server <- function(input, output, session) {
       YearSubSums <- setNames(aggregate(YearSub$rides, by=list(YearSub$newDate), FUN=sum), c("Date", "Rides"))
       YearSubSums
     }, 
-    options = list(searching = FALSE, pageLength = 14, lengthChange = FALSE, order = list(list(0, 'asc'))
+    options = list(searching = FALSE, pageLength = 7, lengthChange = FALSE, order = list(list(0, 'asc'))
     ), rownames = FALSE 
     )
   )
@@ -494,7 +512,7 @@ server <- function(input, output, session) {
       YearSubSums <- setNames(aggregate(YearSub$rides, by=list(YearSub$month), FUN=sum), c("Month", "Rides"))
       YearSubSums
     }, 
-    options = list(searching = FALSE, pageLength = 14, lengthChange = FALSE, order = list(list(0, 'asc'))
+    options = list(searching = FALSE, pageLength = 7, lengthChange = FALSE, order = list(list(0, 'asc'))
     ), rownames = FALSE 
     )
   )
@@ -505,7 +523,7 @@ server <- function(input, output, session) {
       YearSubSums <- setNames(aggregate(YearSub$rides, by=list(YearSub$wday), FUN=sum), c("wday", "rides"))
       YearSubSums
     }, 
-    options = list(searching = FALSE, pageLength = 14, lengthChange = FALSE, order = list(list(0, 'asc'))
+    options = list(searching = FALSE, pageLength = 7, lengthChange = FALSE, order = list(list(0, 'asc'))
     ), rownames = FALSE 
     )
   )
