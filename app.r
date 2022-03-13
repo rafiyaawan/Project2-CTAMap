@@ -304,7 +304,7 @@ server <- function(input, output, session) {
     )
   })
   
-  #map input click markers
+  #register marker click and extract station name
   observeEvent(input$leaflet_marker_click, {
     
     click <- input$leaflet_marker_click
@@ -312,16 +312,19 @@ server <- function(input, output, session) {
     if (is.null(click))
       return()
     
+    # get latitude and longitude of click
     lat <- substr(click$lat, start=1, stop=7)
     long <- substr(click$lng, start=1, stop=8)
     
     stopsAndLocations <- stopData[ , c("MAP_ID", "Location")]
     head(stopsAndLocations)
     
+    # match latitude and longitude with data to get corresponding station ID
     stopsAndLocations$Latitude <- as.numeric(substr(stopsAndLocations$Location, start=2, stop=8))
     stopsAndLocations$Longitude <- sub(".*, ", "", stopsAndLocations$Location)
     stopsAndLocations$Longitude <- as.numeric(substr(stopsAndLocations$Longitude, start=1, stop=8))
     
+    # get station name from id
     selectedStationId <- subset(stopsAndLocations, stopsAndLocations$Latitude == lat & stopsAndLocations$Longitude == long, select=1)
     selectedStation <- ridership_data[ridership_data$station_id == selectedStationId[1,], ]
     print(selectedStation[1,]$stationname)
@@ -517,7 +520,7 @@ server <- function(input, output, session) {
       YearSubSums <- setNames(aggregate(YearSub$rides, by=list(YearSub$newDate), FUN=sum), c("Date", "Rides"))
       YearSubSums
     }, 
-    options = list(searching = FALSE, pageLength = 7, lengthChange = FALSE, order = list(list(0, 'asc'))
+    options = list(searching = FALSE, pageLength = 14, lengthChange = FALSE, order = list(list(0, 'asc'))
     ), rownames = FALSE 
     )
   )
@@ -528,7 +531,7 @@ server <- function(input, output, session) {
       YearSubSums <- setNames(aggregate(YearSub$rides, by=list(YearSub$month), FUN=sum), c("Month", "Rides"))
       YearSubSums
     }, 
-    options = list(searching = FALSE, pageLength = 7, lengthChange = FALSE, order = list(list(0, 'asc'))
+    options = list(searching = FALSE, pageLength = 14, lengthChange = FALSE, order = list(list(0, 'asc'))
     ), rownames = FALSE 
     )
   )
@@ -539,7 +542,7 @@ server <- function(input, output, session) {
       YearSubSums <- setNames(aggregate(YearSub$rides, by=list(YearSub$wday), FUN=sum), c("wday", "rides"))
       YearSubSums
     }, 
-    options = list(searching = FALSE, pageLength = 7, lengthChange = FALSE, order = list(list(0, 'asc'))
+    options = list(searching = FALSE, pageLength = 14, lengthChange = FALSE, order = list(list(0, 'asc'))
     ), rownames = FALSE 
     )
   )
