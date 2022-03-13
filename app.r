@@ -346,16 +346,19 @@ server <- function(input, output, session) {
     byStation <- setNames(aggregate(ridershipDate$rides, by=list(ridershipDate$stationname), sum), c("Station", "Entries"))
     
     if(dataSort() == 0){
-      m <- ggplot(byStation, aes(x=Station, y=Entries)) 
+      m <- ggplot(byStation, aes(x=Station, y=Entries)) +
+        geom_bar(stat="identity", width=0.7, fill="#33647A")
     }
     else{
-      m <- ggplot(byStation, aes(x=reorder(Station, Entries), y=Entries)) 
+      m <- ggplot(byStation, aes(x=reorder(Station, Entries), y=Entries, fill = Entries)) +
+        geom_bar(stat="identity", width=0.7) +
+        scale_fill_gradient2(midpoint = 0, mid = '#465767', low = '#7e2f2f', high = '#33647a') 
     }
     
-    m <- m + geom_bar(stat="identity", width=0.7, fill="#33647A") +
+    #m <- m + geom_bar(stat="identity", width=0.7, fill="#33647A") +
       #scale_fill_manual(values = c("(-Inf, 0]" = "#601e1e", "[1, Inf)" = "#153e51")) +
       #scale_fill_gradient2(midpoint = 0, low = '#082b3a', high = '#490f0f') +
-      theme_bw() +
+      m <- m + theme_bw() +
       labs(x=paste("Station Name"), y="Total Entries") +
       theme(text = element_text(family = "sans", face = "bold")) +
       theme(axis.text.x = element_text(angle = 70, hjust=1))
@@ -368,7 +371,7 @@ server <- function(input, output, session) {
   
   #bad code - can't find how to add a list of markers
   output$leaflet <- renderLeaflet({
-    marker_color = "blue"
+    marker_color = "#33647A"
     m <- leaflet()
     m <- addTiles(m)
     if(input$mapView == 2){
@@ -394,14 +397,14 @@ server <- function(input, output, session) {
     #m <- addProviderTiles(m, provider = "Esri.WorldImagery") #Thunderforest.Transport
     station_ids = strsplit(temp, "./")
     for (i in 1:nrow(DateSubSums)){
-      marker_color = "blue"
+      marker_color = "#33647A"
       a <- subset(stopData, MAP_ID == DateSubSums[i, "station_id"])
       string <- a$Location[1]
       mat = matrix(scan(text = gsub("[()]", "", string), sep = ","), 
                    ncol = 2, byrow = TRUE, dimnames = list(NULL, c("Lat", "Long")))
       #m <- addMarkers(m, lng=mat[1,2], lat=mat[1,1], popup=a$STOP_NAME[1])
       if(DateSubSums[i, "x"] < 0){
-        marker_color = "red"
+        marker_color = "#631a1a"
       }
       m <- addCircleMarkers(m, lng=mat[1,2], lat=mat[1,1], #popup=c(a$STOP_NAME[1], DateSubSums[i, "x"]),
                             popup = paste(sep="",
